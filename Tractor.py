@@ -2,21 +2,7 @@ import socket
 import hashlib
 import multiprocessing
 import time
-
-HEADER_SIZE= 32
-
-#从连接读取指定长度的数据
-def readNbytes(conn, data, size):
-    count = 0
-    while count != size:
-        buffer = conn.recv(size - count)
-        # for i in range(count, count + len(buffer)):
-        #     data[i] = buffer[i - count]
-        #切片有神奇的膜法。。。
-        data[count:count + len(buffer)] = buffer
-
-        count += len(buffer)
-
+from tools import *
 
 
 class Tractor():
@@ -26,9 +12,10 @@ class Tractor():
         self.serverSocket.bind(('localhost', port)) 
         self.serverSocket.listen(MaxConnect)
         #空字典。resourceName --> ip set    
+        #保存资源与IP之间的关系
         self.resourceMap = {}
-        #存活ip-->port
-        self.live = {}
+        #保存存活ip
+        self.live = set()
 
     def recv(self):
         while True:
@@ -40,9 +27,8 @@ class Tractor():
         #期待从peer获得资源信息。
         #报头定义为32字节。
         #HAVE MESSIZE MSG
-        data = [0 for x in range(HEADER_SIZE)]
-        readNbytes(conn, data, HEADER_SIZE)
-        header = bytes(data).decode()
+        self.live.add(addr)
+        header = getHeader(conn)
         print(header)
         if header[0:4] == 'HAVE':
             #OK
@@ -56,7 +42,7 @@ class Tractor():
                 if fileName not in self.resourceMap:
                     self.resourceMap[fileName] = set()
                 self.resourceMap[fileName].add(addr)
-                print(conn.getpeername())
+        
 
 
             

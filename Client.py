@@ -1,7 +1,7 @@
 import socket
 import os
+from tools import *
 
-HEADER_SIZE= 32
 
 class Client():
     def __init__(self, tractorAddr = 'localhost', tractorPort = 5555):
@@ -21,6 +21,20 @@ class Client():
         self.Tsock.sendall(header)
         self.Tsock.sendall(bytes(padding))
         self.Tsock.sendall(send_data)
+    def getFile(self, fileName):
+        pass
+
+    #展示所有的可下载文件
+    def ls(self):
+        header = 'SHOW'.encode('utf8')
+        padding = [32 for x in range(HEADER_SIZE - len(header))]
+        self.Tsock.sendall(header)
+        self.Tsock.sendall(padding)
+
+
+        
+        pass
+
 
 if __name__ == '__main__':
     c = Client()
