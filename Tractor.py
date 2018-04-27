@@ -3,6 +3,7 @@ import hashlib
 import multiprocessing
 import time
 from tools import *
+import os
 
 
 class Tractor():
@@ -60,6 +61,7 @@ class Tractor():
             msgSize = int(header[5:])
             data = [0 for x in range(msgSize)]
             readNbytes(conn, data, msgSize)
+
             # 获取得到的资源信息(文件名,文件名)
             msg = bytes(data).decode()
             fileList = msg.split(",")
@@ -92,17 +94,35 @@ class Tractor():
         #返回一个资源列表(文件名,文件名)
         send_data = ','.join(list(self.resourceMap.keys())).encode('utf8')
         header = ('SHOW OK ' + str(len(send_data))).encode('utf8')
-        padding = padding = [32 for x in range(HEADER_SIZE - len(header))]
+        padding = [32 for x in range(HEADER_SIZE - len(header))]
         self.serverSocket.sendall(header)
         self.serverSocket.sendall(padding)
         self.serverSocket.sendall(send_data)
+
+    def replyGET(self, filename):
+        """
+            接收客户需要的文件名
+            将拥有该文件的peer的ip传给客户
+        """
+        #获取拥有文件的对等方的ip
+        ipset = (list(self.resourceMap[filename])).encode('utf8')
+        #读取文件获取函数
+        with open(filename,"r") fr:
+            filelen = len(fr.readlines())
+            header = ('GET OK ' + str(len(ipset)) + ' ' + \
+            str(filelen)).encode('utf8')
+        padding = [32 for x in range(HEADER_SIZE - len(header))]
+        self.serverSocket.sendall(header)
+        self.serverSocket.sendall(padding)
+        self.serverSocket.sendall(ipset)
 
     def EXEComm(self, header):
 
         if header[:4] == 'SHOW':
             self.replySHOW()
-        elif header[:3] == 'GET'
-        
+        elif header[:3] == 'GET':
+            filename = header[4:]
+            self.replyGET(filename)
                 
 
 
