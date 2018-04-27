@@ -1,4 +1,6 @@
 #从连接读取指定长度的数据
+HEADER_SIZE= 32
+
 def readNbytes(conn, data, size):
     count = 0
     while count != size:
@@ -14,7 +16,6 @@ def getHeader(conn, size = HEADER_SIZE):
     data = [0 for x in range(size)]
     readNbytes(conn, data, size)
     header = bytes(data).decode()
-    return header
+    return header.strip()
 
 
-HEADER_SIZE= 32
